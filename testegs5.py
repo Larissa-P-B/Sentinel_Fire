@@ -1,18 +1,18 @@
-import heapq
-from collections import deque
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-import random
-import threading
-import time
-import smtplib
-from email.mime.text import MIMEText
-from twilio.rest import Client  # Para SMS
-import cv2
-import numpy as np
-from flask import Flask, jsonify, request
-from tensorflow.keras import models,layers
-
+# Importações necessárias para o sistema
+import heapq  # Para fila prioritária
+from collections import deque  # Para filas de equipes e drones
+from dataclasses import dataclass, field  # Para classes de dados
+from typing import List, Dict, Optional  # Para type hints
+import random  # Para simulação de dados
+import threading  # Para processamento paralelo
+import time  # Para controle de tempo
+import smtplib  # Para envio de e-mails
+from email.mime.text import MIMEText  # Para formatação de e-mails
+from twilio.rest import Client  # Para envio de SMS
+import cv2  # Para processamento de imagens
+import numpy as np  # Para manipulação de arrays
+from flask import Flask, jsonify, request  # Para API web
+from tensorflow.keras import models, layers  # Para modelo de IA
 
 
 # ==================== Módulo 1: Sistema de Monitoramento (Simulado) ====================
@@ -21,6 +21,7 @@ class SensorSimulator:
     """Simula sensores térmicos, de temperatura, umidade e CO2"""
 
     def __init__(self):
+        # Configuração dos sensores com valores normais e de incêndio
         self.sensors = {
             'thermal': {'min': 20, 'max': 50, 'fire_min': 80, 'fire_max': 120},
             'temperature': {'min': 15, 'max': 45, 'fire_min': 60, 'fire_max': 100},
@@ -34,10 +35,11 @@ class SensorSimulator:
 
         # Gera imagem térmica simulada
         if has_fire:
+            # Cria imagem com área de fogo mais quente
             img = np.random.randint(self.sensors['thermal']['min'],
                                     self.sensors['thermal']['max'],
                                     (*size, 3)).astype(np.uint8)
-            # Adiciona área de fogo
+            # Adiciona área de fogo aleatória
             x, y = np.random.randint(50, 150, 2)
             img[x - 20:x + 20, y - 20:y + 20] = np.random.randint(
                 self.sensors['thermal']['fire_min'],
@@ -45,6 +47,7 @@ class SensorSimulator:
                 (40, 40, 3))
             thermal_img = cv2.applyColorMap(img, cv2.COLORMAP_HOT)
         else:
+            # Imagem normal sem fogo
             img = np.random.randint(self.sensors['thermal']['min'],
                                     self.sensors['thermal']['max'],
                                     (*size, 3)).astype(np.uint8)
@@ -72,6 +75,7 @@ class FireDetectionModel:
     """Modelo de IA para detecção de focos de incêndio"""
 
     def __init__(self):
+        # Constrói e compila o modelo de IA
         self.model = self.build_model()
         self.model.compile(optimizer='adam',
                            loss='binary_crossentropy',
@@ -87,23 +91,20 @@ class FireDetectionModel:
             layers.Conv2D(64, (3, 3), activation='relu'),
             layers.Flatten(),
             layers.Dense(64, activation='relu'),
-            layers.Dense(1, activation='sigmoid')
+            layers.Dense(1, activation='sigmoid')  # Saída binária (fogo ou não)
         ])
         return model
 
     def predict_fire(self, thermal_image):
         """Faz a predição de fogo em uma imagem térmica"""
-        # Pré-processamento
+        # Pré-processamento da imagem
         img = cv2.resize(thermal_image, (224, 224))
-        img = img / 255.0
-        img = np.expand_dims(img, axis=0)
+        img = img / 255.0  # Normalização
+        img = np.expand_dims(img, axis=0)  # Adiciona dimensão do batch
 
-        # Predição
+        # Predição (retorna probabilidade de ser fogo)
         prediction = self.model.predict(img)[0][0]
         return prediction
-
-
-
 
 # ==================== Estruturas de Dados ====================
 
@@ -123,6 +124,7 @@ class LinkedList:
         self.tail: Optional[Node] = None
 
     def append(self, data):
+        """Adiciona novo nó ao final da lista"""
         new_node = Node(data)
         if not self.head:
             self.head = new_node
@@ -132,6 +134,7 @@ class LinkedList:
             self.tail = new_node
 
     def to_list(self) -> List:
+        """Converte a lista ligada para lista Python"""
         result = []
         current = self.head
         while current:
@@ -156,12 +159,14 @@ class BinarySearchTree:
         self.root: Optional[TreeNode] = None
 
     def insert(self, value):
+        """Insere novo valor na árvore"""
         if not self.root:
             self.root = TreeNode(value)
         else:
             self._insert_recursive(self.root, value)
 
     def _insert_recursive(self, node: TreeNode, value):
+        """Método auxiliar recursivo para inserção"""
         if value < node.value:
             if node.left is None:
                 node.left = TreeNode(value)
@@ -174,9 +179,11 @@ class BinarySearchTree:
                 self._insert_recursive(node.right, value)
 
     def search(self, value) -> bool:
+        """Busca um valor na árvore"""
         return self._search_recursive(self.root, value)
 
     def _search_recursive(self, node: Optional[TreeNode], value) -> bool:
+        """Método auxiliar recursivo para busca"""
         if node is None:
             return False
         if node.value == value:
@@ -188,25 +195,28 @@ class BinarySearchTree:
 
 
 class DroneTracker:
+    """Rastreamento de atividades dos drones"""
     def __init__(self):
         self.historico = LinkedList()
 
     def registrar(self, drone_id: str, acao: str, ocorrencia_id: int = None):
+        """Registra uma ação no histórico"""
         registro = f"{time.strftime('%H:%M:%S')} - {drone_id}: {acao}"
         if ocorrencia_id:
             registro += f" (Ocorrência {ocorrencia_id})"
         self.historico.append(registro)
 
     def obter_historico(self) -> List[str]:
+        """Retorna o histórico completo"""
         return self.historico.to_list()
 
 
 @dataclass(order=True)
 class Ocorrencia:
     """Classe que usa Heap pela prioridade"""
-    prioridade: int
+    prioridade: int # Usado para ordenação no heap
     local: str = field(compare=False)
-    severidade: int = field(compare=False)
+    severidade: int = field(compare=False) # 1-5
     regiao: str = field(compare=False)
     id: int = field(default_factory=lambda: random.randint(1000, 9999), compare=False)
     status: str = field(default="Pendente", compare=False)
@@ -215,13 +225,15 @@ class Ocorrencia:
     tempo_inicio_fogo: float = field(default=0.0, compare=False)
 
     def __post_init__(self):
+        """Configura prioridade baseada na severidade e região"""
         self.prioridade = -self.severidade  # Heap máximo
         if self.regiao in ["Amazônia", "Pantanal"]:
-            self.prioridade *= 2
+            self.prioridade *= 2 # Prioridade dobrada
 
 
 @dataclass
 class ContatoEmergencia:
+    """Contatos para notificação de emergências"""
     nome: str
     email: str
     telefone: str
@@ -230,11 +242,13 @@ class ContatoEmergencia:
 
 
 class SistemaAlerta:
+    """Sistema de envio de alertas por e-mail e SMS"""
     def __init__(self,sistema_emergencia):
         # Lista de contatos para notificação
-        self.contatos = LinkedList()
+        self.contatos = LinkedList() # Lista de contatos
         self.sistema = sistema_emergencia  # Armazenamos a referência
-        # Configurações de serviços externos
+
+        # Configurações de serviços externos E-mail
         self.email_config = {
             'servidor': 'smtp.emergencia.com',
             'porta': 587,
@@ -324,7 +338,9 @@ class SistemaAlerta:
             self.sistema.drone_tracker.registrar("Sistema", f"SMS enviado para {contato.nome}", ocorrencia.id)
         except Exception as e:
             self.sistema.historico.append(f"Falha ao enviar SMS para {contato.nome}: {str(e)}")
-# ==================== Sistema Principal ====================
+
+
+# ==================== Sistema Principal ==============================
 
 class SistemaEmergencia:
     def __init__(self):
@@ -379,7 +395,7 @@ class SistemaEmergencia:
         for contato in contatos_iniciais:
             self.sistema_alerta.adicionar_contato(contato)
     def registrar_ocorrencia(self, local: str, severidade: int, regiao: str) -> Ocorrencia:
-        if not self.regioes.search(regiao):
+        if not self.regioes.search(regiao): # Se região nova, cadastra
             self.regioes.insert(regiao)
             self.historico.append(f"Nova região cadastrada: {regiao}")
 
@@ -392,6 +408,7 @@ class SistemaEmergencia:
         return nova_ocorrencia
 
     def enviar_drone(self, ocorrencia: Ocorrencia) -> Dict:
+        """Envia drone para verificar ocorrência"""
         if not self.drones_disponiveis or self.drone_em_missao:
             return {"status": "error", "message": "Nenhum drone disponível"}
 
@@ -406,14 +423,14 @@ class SistemaEmergencia:
 
         def simular_missao():
             try:
-                time.sleep(1.5)
-                ocorrencia.fogo_confirmado = random.random() > 0.5
+                time.sleep(1.5) # Simula tempo de voo
+                ocorrencia.fogo_confirmado = random.random() > 0.5 # 50% de chance de confirmar
 
                 if ocorrencia.fogo_confirmado:
                     ocorrencia.status = "Fogo ativo"
                     ocorrencia.tempo_inicio_fogo = time.time()
                     # Aumenta a severidade se for confirmado
-                    ocorrencia.severidade = max(ocorrencia.severidade, 4)
+                    ocorrencia.severidade = max(ocorrencia.severidade, 4) # Garante severidade
                     self.drone_tracker.registrar(drone, "Fogo confirmado", ocorrencia.id)
 
                     # Envia alerta de confirmação (já verifica severidade >= 4 internamente)
@@ -427,15 +444,17 @@ class SistemaEmergencia:
                     ocorrencia.status = "Verificado"
                     self.drone_tracker.registrar(drone, "Nenhum fogo detectado", ocorrencia.id)
             finally:
+                # Libera drone após missão
                 self.drones_disponiveis.append(drone)
                 self.drone_em_missao = False
 
+        # Inicia thread para missão do drone
         threading.Thread(target=simular_missao, daemon=True).start()
         return {"status": "success", "drone": drone}
 
     def verificar_fogos_apagados(self):
         while True:
-            time.sleep(10)
+            time.sleep(10) # Verifica a cada 10 segundos
             for oc in self.fila_prioritaria:
                 if oc.status == "Fogo ativo" and random.random() > 0.7:  # 30% chance de apagar
                     oc.fogo_apagado = True
@@ -448,29 +467,34 @@ class SistemaEmergencia:
 
 
     def verificar_drones_automaticamente(self):
+        """Verifica automaticamente se precisa enviar drones"""
         while True:
-            time.sleep(2)
+            time.sleep(2) # Verifica a cada 2 segundos
             if self.drones_disponiveis and self.fila_prioritaria:
+                # Filtra ocorrências prioritárias
                 ocorrencias = [oc for oc in self.fila_prioritaria
                                if oc.severidade > 3 and oc.status in ["Pendente", "Fogo ativo"]]
                 if ocorrencias:
+                    # Ordena por severidade e envia drone para a mais grave
                     ocorrencias.sort(key=lambda x: x.severidade, reverse=True)
                     self.enviar_drone(ocorrencias[0])
 
 
 
     def atender_ocorrencia(self) -> Optional[str]:
+        """Designa equipe para atender ocorrência"""
         if not self.fila_prioritaria or not self.equipes_disponiveis:
             return None
 
-        ocorrencia = heapq.heappop(self.fila_prioritaria)
-        equipe = self.equipes_disponiveis.popleft()
+        ocorrencia = heapq.heappop(self.fila_prioritaria) # Pega ocorrência mais prioritária
+        equipe = self.equipes_disponiveis.popleft() # Pega primeira equipe disponível
         ocorrencia.status = "Em atendimento"
         msg = f"{equipe} designada para ocorrência {ocorrencia.id}"
         self.drone_tracker.registrar("Sistema", f"Atendimento iniciado por {equipe}", ocorrencia.id)
         return msg
 
     def simular_ocorrencias(self, quantidade: int):
+        """Simula ocorrências para testes"""
         for _ in range(quantidade):
             self.registrar_ocorrencia(
                 local=f"Área {random.randint(1, 100)}",
@@ -485,11 +509,12 @@ app = Flask(__name__)
 sistema = SistemaEmergencia()
 
 
+# Endpoint raiz
 @app.route('/')
 def home():
     return "Sistema de Gerenciamento de Queimadas"
 
-
+# Endpoint para listar ocorrências
 @app.route('/ocorrencias', methods=['GET'])
 def listar_ocorrencias():
     ocorrencias = [{
@@ -504,12 +529,12 @@ def listar_ocorrencias():
     } for oc in sistema.fila_prioritaria]
     return jsonify({"ocorrencias": ocorrencias})
 
-
+# Endpoint para histórico geral
 @app.route('/historico', methods=['GET'])
 def historico():
     return jsonify({"historico": sistema.historico.to_list()})
 
-
+# Endpoint para histórico de drones
 @app.route('/historico_drones', methods=['GET'])
 def historico_drones():
     return jsonify({
@@ -517,20 +542,20 @@ def historico_drones():
         "total_acoes": len(sistema.drone_tracker.historico.to_list())
     })
 
-
+# Endpoint para simular ocorrências (POST)
 @app.route('/simular', methods=['POST'])
 def simular():
     quantidade = request.json.get('quantidade', 1)
     sistema.simular_ocorrencias(quantidade)
-    return jsonify({"status": "success"})
+    return jsonify({"status": "success","msg":"Nova ocorrência simulada"})
 
-
+# Endpoint para atender ocorrência (POST)
 @app.route('/atender', methods=['POST'])
 def atender():
     resultado = sistema.atender_ocorrencia()
     return jsonify({"resultado": resultado} if resultado else {"error": "Nada para atender"})
 
-
+# Endpoint para listar contatos
 @app.route('/contatos', methods=['GET'])
 def listar_contatos():
     contatos = []
@@ -547,6 +572,7 @@ def listar_contatos():
         current = current.next
     return jsonify({"contatos": contatos})
 
+# Endpoint para adicionar contato (POST)
 @app.route('/contatos/adicionar', methods=['POST'])
 def adicionar_contato():
     data = request.json
@@ -563,7 +589,7 @@ def adicionar_contato():
     except KeyError as e:
         return jsonify({"status": "error", "message": f"Campo faltando: {str(e)}"}), 400
 
-
+# Endpoint para testar SMS (POST)
 @app.route('/testar_sms', methods=['POST'])
 def testar_sms():
     data = request.json
@@ -585,9 +611,13 @@ def testar_sms():
 
 
 def iniciar_servicos():
+    """Inicia threads de serviços em segundo plano"""
+    # Thread para verificação automática de drones
     threading.Thread(target=sistema.verificar_drones_automaticamente, daemon=True).start()
+    # Thread para verificação de fogos apagados
     threading.Thread(target=sistema.verificar_fogos_apagados, daemon=True).start()
 
+    # Thread para simulação periódica de ocorrências (apenas para demonstração)
     def simular_ocorrencias_periodicamente():
         while True:
             time.sleep(3)
@@ -599,9 +629,9 @@ def iniciar_servicos():
 
 if __name__ == '__main__':
     print("Iniciando serviços...")
-    iniciar_servicos()
-
+    iniciar_servicos() # Inicia threads de serviço
+    print("http://localhost:5000/")
+    # Inicia servidor Flask
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
-#teste
