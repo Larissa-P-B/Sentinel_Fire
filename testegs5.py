@@ -1,3 +1,6 @@
+#Nome: Larissa Pereira Biusse
+#RM: 564068
+
 # Importações necessárias para o sistema
 import heapq  # Para fila prioritária
 from collections import deque  # Para filas de equipes e drones
