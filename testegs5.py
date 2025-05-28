@@ -244,9 +244,9 @@ class SistemaAlerta:
 
         # Configuração para SMS (Twilio)
         self.sms_config = {
-            'account_sid': 'A######################',
-            'auth_token': '########################',
-            'from_number': '4328974327'
+            'account_sid': 'ACd025a213f58164a5eac8e653531ec4a1',
+            'auth_token': 'cf1462a6e213fd8439c2abb98d9426b2',
+            'from_number': '+17755229557'
         }
 
 
@@ -254,12 +254,14 @@ class SistemaAlerta:
         # Template de mensagens
         self.templates = {
             'email': {
-                'alerta': "ALERTA: Foco de incêndio detectado em {regiao} - {local}",
-                'confirmacao': "CONFIRMAÇÃO: Incêndio em {regiao} foi controlado"
+                'alerta': "ALERTA: Foco de incêndio detectado em {regiao} - {local}. Severidade: {severidade}",
+                'confirmacao': "CONFIRMAÇÃO: Incêndio em {regiao} foi controlado",
+                'alerta_preliminar': "ALERTA PRELIMINAR: Possível foco em {regiao} - {local}"
             },
             'sms': {
-                'alerta': "[ALERTA] Fogo em {regiao}! Severidade: {severidade}. Local: {local}",
-                'confirmacao': "[CONTROLE] Incêndio em {regiao} foi controlado"
+                'alerta': "[ALERTA CRÍTICO] Fogo em {regiao}! Severidade: {severidade}. Local: {local}",
+                'confirmacao': "[CONTROLE] Incêndio em {regiao} foi controlado",
+                'alerta_preliminar': "[ALERTA] Possível fogo em {regiao}. Verificação em andamento"
             }
         }
 
@@ -270,12 +272,16 @@ class SistemaAlerta:
 
     def enviar_alertas(self, ocorrencia: Ocorrencia, tipo: str = 'alerta'):
         """Envia alertas para todos os contatos relevantes"""
+        # Só envia SMS se a severidade for >= 4
+        send_sms = ocorrencia.severidade >= 4
+
         current = self.contatos.head
         while current:
             contato = current.data
             if ocorrencia.regiao in contato.regioes:
                 self._enviar_email(contato, ocorrencia, tipo)
-                self._enviar_sms(contato, ocorrencia, tipo)
+                if send_sms:  # Só envia SMS se atender ao critério
+                    self._enviar_sms(contato, ocorrencia, tipo)
             current = current.next
 
     def _enviar_email(self, contato: ContatoEmergencia, ocorrencia: Ocorrencia, tipo: str):
@@ -357,14 +363,14 @@ class SistemaEmergencia:
             ContatoEmergencia(
                 nome="Defesa Civil Nacional",
                 email="defesacivil@nacional.gov",
-                telefone="+55593898032903",
+                telefone="+18777804236",
                 tipo="autoridade",
                 regioes=["Amazônia", "Pantanal", "Cerrado", "Mata Atlântica"]
             ),
             ContatoEmergencia(
                 nome="Comunidade Local - Amazônia",
                 email="lideranca@amazonia.com",
-                telefone="+5551888888888",
+                telefone="+18777804236",
                 tipo="comunidade",
                 regioes=["Amazônia"]
             )
@@ -394,8 +400,8 @@ class SistemaEmergencia:
         ocorrencia.status = "Em verificação"
         self.drone_tracker.registrar(drone, "Enviado para verificação", ocorrencia.id)
 
-        # Envia alerta preliminar para autoridades
-        if ocorrencia.severidade >= 3:
+        # Envia alerta preliminar APENAS se severidade >= 4
+        if ocorrencia.severidade >= 4:
             self.sistema_alerta.enviar_alertas(ocorrencia, 'alerta_preliminar')
 
         def simular_missao():
@@ -406,10 +412,11 @@ class SistemaEmergencia:
                 if ocorrencia.fogo_confirmado:
                     ocorrencia.status = "Fogo ativo"
                     ocorrencia.tempo_inicio_fogo = time.time()
+                    # Aumenta a severidade se for confirmado
                     ocorrencia.severidade = max(ocorrencia.severidade, 4)
                     self.drone_tracker.registrar(drone, "Fogo confirmado", ocorrencia.id)
 
-                    # Envia alerta de confirmação
+                    # Envia alerta de confirmação (já verifica severidade >= 4 internamente)
                     self.sistema_alerta.enviar_alertas(ocorrencia, 'alerta')
 
                     # Processa tarefas da pilha
@@ -555,6 +562,27 @@ def adicionar_contato():
         return jsonify({"status": "success"})
     except KeyError as e:
         return jsonify({"status": "error", "message": f"Campo faltando: {str(e)}"}), 400
+
+
+@app.route('/testar_sms', methods=['POST'])
+def testar_sms():
+    data = request.json
+    try:
+        # Cria uma ocorrência de teste com severidade 4
+        ocorrencia_teste = Ocorrencia(
+            prioridade=0,
+            local=data.get('local', 'Área de Teste'),
+            severidade=4,  # Severidade que dispara SMS
+            regiao=data.get('regiao', 'Amazônia')
+        )
+
+        # Envia alerta
+        sistema.sistema_alerta.enviar_alertas(ocorrencia_teste, 'alerta')
+        return jsonify({"status": "success", "message": "SMS de teste enviado para contatos da região"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
 
 def iniciar_servicos():
     threading.Thread(target=sistema.verificar_drones_automaticamente, daemon=True).start()
