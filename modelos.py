@@ -1,4 +1,6 @@
-# modelos.py
+#Nome: Larissa Pereira Biusse
+#RM: 564068
+
 from dataclasses import dataclass, field
 import random
 from typing import List

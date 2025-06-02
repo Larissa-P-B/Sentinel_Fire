@@ -1,3 +1,6 @@
+#Nome: Larissa Pereira Biusse
+#RM: 564068
+
 import streamlit as st
 import requests
 import pandas as pd
@@ -11,71 +14,74 @@ st.set_page_config(
     page_icon="🔥"
 )
 
-# Variável de estado para controlar atualizações
+# Inicializa variável de estado para controlar atualizações
 if 'last_update' not in st.session_state:
     st.session_state.last_update = datetime.now()
 
-# Função para forçar atualização
+# Função para forçar atualização da página
 def atualizar_mapa():
     st.session_state.last_update = datetime.now()
     st.rerun()
 
-# Funções para buscar dados da API
+# Função genérica para chamadas ao backend
+def chamar_backend(endpoint, method='get', json_data=None):
+    url = f"{BACKEND_URL}/{endpoint}"
+    try:
+        if method == 'get':
+            response = requests.get(url)
+        elif method == 'post':
+            response = requests.post(url, json=json_data)
+        else:
+            return None, "Método HTTP não suportado"
+        if response.ok:
+            return response.json(), None
+        else:
+            return None, f"Erro: {response.status_code}"
+    except Exception as e:
+        return None, str(e)
+
+# Funções para buscar dados da API com cache
 @st.cache_data(ttl=10)
 def fetch_ocorrencias():
-    try:
-        response = requests.get(f"{BACKEND_URL}/ocorrencias")
-        return response.json()["ocorrencias"] if response.ok else []
-    except:
-        return []
+    data, erro = chamar_backend("ocorrencias")
+    return data["ocorrencias"] if data and "ocorrencias" in data else []
 
 @st.cache_data(ttl=10)
 def fetch_historico_drones():
-    try:
-        response = requests.get(f"{BACKEND_URL}/historico_drones")
-        return response.json() if response.ok else {"historico": [], "total_acoes": 0}
-    except:
-        return {"historico": [], "total_acoes": 0}
+    data, erro = chamar_backend("historico_drones")
+    return data if data else {"historico": [], "total_acoes": 0}
 
 # Layout do título com logo
 col1, col2 = st.columns([1, 10])
 with col1:
-    st.image("templates\logo.png", width=120 )# Você pode substituir por seu próprio logo
+    st.image("templates/logo.png", width=120)  # Ajuste na barra invertida para barra normal
 with col2:
     st.title("Sentinel Fire Monitoring")
-
 
 # Sidebar com controles e informações
 with st.sidebar:
     st.header("Controles")
 
-    # Botão para atualizar o mapa
     if st.button("🔄 Atualizar Dados", on_click=atualizar_mapa):
         pass
 
     st.write(f"Última atualização: {st.session_state.last_update.strftime('%H:%M:%S')}")
 
     if st.button("Simular Ocorrência"):
-        try:
-            response = requests.post(f"{BACKEND_URL}/simular", json={"quantidade": 1})
-            if response.ok:
-                st.success("Ocorrência simulada com sucesso!")
-                atualizar_mapa()
-            else:
-                st.error("Erro ao simular ocorrência")
-        except:
-            st.error("Não foi possível conectar ao servidor")
+        _, erro = chamar_backend("simular", method="post", json_data={"quantidade": 1})
+        if erro:
+            st.error(f"Erro ao simular ocorrência: {erro}")
+        else:
+            st.success("Ocorrência simulada com sucesso!")
+            atualizar_mapa()
 
     if st.button("Atender Ocorrência"):
-        try:
-            response = requests.post(f"{BACKEND_URL}/atender")
-            if response.ok:
-                st.success("Ocorrência atendida com sucesso!")
-                atualizar_mapa()
-            else:
-                st.error("Nenhuma ocorrência para atender")
-        except:
-            st.error("Não foi possível conectar ao servidor")
+        _, erro = chamar_backend("atender", method="post")
+        if erro:
+            st.error(f"Erro ao atender ocorrência: {erro}")
+        else:
+            st.success("Ocorrência atendida com sucesso!")
+            atualizar_mapa()
 
     # Mostrar informações resumidas
     data = fetch_ocorrencias()
@@ -85,11 +91,11 @@ with st.sidebar:
         st.metric("Focos Ativos", len(df[df['status'] == "Fogo ativo"]))
         st.metric("Máxima Severidade", df['severidade'].max())
 
-# Mapa principal
+# Mapa principal com iframe
+iframe_src = f"{BACKEND_URL}/mapa?{st.session_state.last_update.timestamp()}"
 st.markdown(f"""
 <div style="width:100%; height:600px; margin-top:20px;">
-    <iframe src="{BACKEND_URL}/mapa?{st.session_state.last_update.timestamp()}" 
-            width="100%" height="100%"></iframe>
+    <iframe src="{iframe_src}" width="100%" height="100%" frameborder="0"></iframe>
 </div>
 """, unsafe_allow_html=True)
 
@@ -104,15 +110,12 @@ st.markdown("""
 # Seção do histórico de drones
 st.header("🛸 Histórico de Ações dos Drones")
 drones_data = fetch_historico_drones()
-df_drones = pd.DataFrame(drones_data["historico"])
+df_drones = pd.DataFrame(drones_data.get("historico", []))
 
-st.write("Última linha do DataFrame:", df_drones.iloc[-1] if not df_drones.empty else "DataFrame vazio")
-st.write("Dados recebidos do histórico:", drones_data["historico"])
-drones_data = fetch_historico_drones()
 if not df_drones.empty:
     col1, col2 = st.columns(2)
     with col1:
-        st.metric("Total de Ações", drones_data["total_acoes"])
+        st.metric("Total de Ações", drones_data.get("total_acoes", 0))
     with col2:
         if 'acao' in df_drones.columns:
             st.metric("Última Ação", df_drones.iloc[-1]["acao"])
@@ -122,7 +125,7 @@ if not df_drones.empty:
 else:
     st.warning("Nenhuma ação de drone registrada")
 
-# Lista de ocorrências (opcional)
+# Lista de ocorrências detalhada (opcional)
 if st.checkbox("Mostrar lista de ocorrências detalhada"):
     if not df.empty:
         st.dataframe(df)
@@ -138,10 +141,9 @@ if focos_apagados:
 else:
     st.info("Nenhum fogo apagado recentemente")
 
-# Rodapé
+# Rodapé com última atualização do sistema
 st.markdown("---")
 st.markdown(f"📅 Última atualização do sistema: {datetime.now().strftime('%H:%M:%S')}")
 
-#streamlit run dashboard.py
 
 

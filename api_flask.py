@@ -1,3 +1,6 @@
+#Nome: Larissa Pereira Biusse
+#RM: 564068
+
 import os
 
 from flask import Flask, jsonify, request, send_from_directory, send_file
@@ -14,7 +17,8 @@ sistema = SistemaEmergencia()
 
 @app.route('/')
 def home():
-    return "Sistema de Gerenciamento de Queimadas"
+    return (f"Sentinel Fire\n"
+            + "Sistema de Gerenciamento de Queimadas")
 
 
 @app.route('/ocorrencias', methods=['GET'])

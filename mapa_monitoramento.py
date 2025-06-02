@@ -1,3 +1,6 @@
+#Nome: Larissa Pereira Biusse
+#RM: 564068
+
 import folium
 from folium.plugins import MarkerCluster, HeatMap, MiniMap, Fullscreen
 import random

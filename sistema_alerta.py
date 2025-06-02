@@ -1,3 +1,5 @@
+#Nome: Larissa Pereira Biusse
+#RM: 564068
 
 from email.mime.text import MIMEText
 import smtplib
