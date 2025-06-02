@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_77d1b8ac955d1c232d94953d0181bfbe {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium@main/folium/templates/leaflet_heat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.css"/>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_77d1b8ac955d1c232d94953d0181bfbe" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_77d1b8ac955d1c232d94953d0181bfbe = L.map(
+                "map_77d1b8ac955d1c232d94953d0181bfbe",
+                {
+                    center: [-14.235, -51.9253],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 4,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c7b40a5d324a0f29aeeb4c9e30e79c68 = L.tileLayer(
+                "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "OpenStreetMap",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c7b40a5d324a0f29aeeb4c9e30e79c68.addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+            var heat_map_3b50865c42b293f615176087c1df67b7 = L.heatLayer(
+                [],
+                {
+  "minOpacity": 0.6,
+  "maxZoom": 18,
+  "radius": 25,
+  "blur": 15,
+  "gradient": {
+  0.4: "blue",
+  0.6: "lime",
+  0.7: "yellow",
+  0.8: "orange",
+  1.0: "red",
+},
+}
+            );
+        
+    
+            heat_map_3b50865c42b293f615176087c1df67b7.addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+            var marker_cluster_ca122e96ae6b4510365905b9f072ff2c = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            marker_cluster_ca122e96ae6b4510365905b9f072ff2c.addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+            var rectangle_da385f954c2a4b03225b0aab42bedf52 = L.rectangle(
+                [[-10.0, -74.0], [5.0, -50.0]],
+                {"bubblingMouseEvents": true, "color": "#3186cc", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3186cc", "fillOpacity": 0.1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+        var popup_484a54b888373fab5e40366c1f0deb3a = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4ca4d50cf183b9212909aab91ac1f769 = $(`<div id="html_4ca4d50cf183b9212909aab91ac1f769" style="width: 100.0%; height: 100.0%;"><b>Região Amazônia</b></div>`)[0];
+                popup_484a54b888373fab5e40366c1f0deb3a.setContent(html_4ca4d50cf183b9212909aab91ac1f769);
+            
+        
+
+        rectangle_da385f954c2a4b03225b0aab42bedf52.bindPopup(popup_484a54b888373fab5e40366c1f0deb3a)
+        ;
+
+        
+    
+    
+            rectangle_da385f954c2a4b03225b0aab42bedf52.bindTooltip(
+                `<div>
+                     Amazônia
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var rectangle_6d1868d98e4eb5fcd61df09b5b0f6a01 = L.rectangle(
+                [[-20.0, -60.0], [-15.0, -55.0]],
+                {"bubblingMouseEvents": true, "color": "#3186cc", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3186cc", "fillOpacity": 0.1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+        var popup_f5a440f5a30d11b6f2b2e6f13167402c = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_58355fcc6df4af0c3ffe90fc55f135c3 = $(`<div id="html_58355fcc6df4af0c3ffe90fc55f135c3" style="width: 100.0%; height: 100.0%;"><b>Região Pantanal</b></div>`)[0];
+                popup_f5a440f5a30d11b6f2b2e6f13167402c.setContent(html_58355fcc6df4af0c3ffe90fc55f135c3);
+            
+        
+
+        rectangle_6d1868d98e4eb5fcd61df09b5b0f6a01.bindPopup(popup_f5a440f5a30d11b6f2b2e6f13167402c)
+        ;
+
+        
+    
+    
+            rectangle_6d1868d98e4eb5fcd61df09b5b0f6a01.bindTooltip(
+                `<div>
+                     Pantanal
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var rectangle_60f28a08dcd4ffd38abae895fb64b024 = L.rectangle(
+                [[-20.0, -55.0], [-10.0, -40.0]],
+                {"bubblingMouseEvents": true, "color": "#3186cc", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3186cc", "fillOpacity": 0.1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+        var popup_bdc935b98a787926abd3b8eec9c90ff3 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_b970ee9830d8905b7b6b9ebecad2fc9b = $(`<div id="html_b970ee9830d8905b7b6b9ebecad2fc9b" style="width: 100.0%; height: 100.0%;"><b>Região Cerrado</b></div>`)[0];
+                popup_bdc935b98a787926abd3b8eec9c90ff3.setContent(html_b970ee9830d8905b7b6b9ebecad2fc9b);
+            
+        
+
+        rectangle_60f28a08dcd4ffd38abae895fb64b024.bindPopup(popup_bdc935b98a787926abd3b8eec9c90ff3)
+        ;
+
+        
+    
+    
+            rectangle_60f28a08dcd4ffd38abae895fb64b024.bindTooltip(
+                `<div>
+                     Cerrado
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var rectangle_5c04a74ff1ddc5c3388b477e5c174c3a = L.rectangle(
+                [[-25.0, -48.0], [-15.0, -38.0]],
+                {"bubblingMouseEvents": true, "color": "#3186cc", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#3186cc", "fillOpacity": 0.1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+        var popup_89506b0875f2306c8f279858a4ef11c0 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_233035c6452170cb3aa54ec035ccd68e = $(`<div id="html_233035c6452170cb3aa54ec035ccd68e" style="width: 100.0%; height: 100.0%;"><b>Região Mata Atlântica</b></div>`)[0];
+                popup_89506b0875f2306c8f279858a4ef11c0.setContent(html_233035c6452170cb3aa54ec035ccd68e);
+            
+        
+
+        rectangle_5c04a74ff1ddc5c3388b477e5c174c3a.bindPopup(popup_89506b0875f2306c8f279858a4ef11c0)
+        ;
+
+        
+    
+    
+            rectangle_5c04a74ff1ddc5c3388b477e5c174c3a.bindTooltip(
+                `<div>
+                     Mata Atlântica
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            L.control.fullscreen(
+                {
+  "position": "topright",
+  "title": "Full Screen",
+  "titleCancel": "Exit Full Screen",
+  "forceSeparateButton": false,
+}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+        
+    
+            var tile_layer_002021bf5eb2d48c0740be97e9ee01bb = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detect_retina": false, "max_native_zoom": 19, "max_zoom": 19, "min_zoom": 0, "no_wrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+            var mini_map_90314cdba309d41e66cac2a3ee2b0da5 = new L.Control.MiniMap(
+                tile_layer_002021bf5eb2d48c0740be97e9ee01bb,
+                {
+  "position": "bottomleft",
+  "width": 150,
+  "height": 150,
+  "collapsedWidth": 25,
+  "collapsedHeight": 25,
+  "zoomLevelOffset": -5,
+  "centerFixed": false,
+  "zoomAnimation": false,
+  "toggleDisplay": false,
+  "autoToggleDisplay": false,
+  "minimized": false,
+}
+            );
+            map_77d1b8ac955d1c232d94953d0181bfbe.addControl(mini_map_90314cdba309d41e66cac2a3ee2b0da5);
+        
+    
+            var layer_control_d2758112cff66c1f7136819e1b5d6fe8_layers = {
+                base_layers : {
+                    "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png" : tile_layer_c7b40a5d324a0f29aeeb4c9e30e79c68,
+                },
+                overlays :  {
+                    "Intensidade de Fogo" : heat_map_3b50865c42b293f615176087c1df67b7,
+                    "Focos de Inc\u00eandio" : marker_cluster_ca122e96ae6b4510365905b9f072ff2c,
+                },
+            };
+            let layer_control_d2758112cff66c1f7136819e1b5d6fe8 = L.control.layers(
+                layer_control_d2758112cff66c1f7136819e1b5d6fe8_layers.base_layers,
+                layer_control_d2758112cff66c1f7136819e1b5d6fe8_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_77d1b8ac955d1c232d94953d0181bfbe);
+
+        
+</script>
+</html>
