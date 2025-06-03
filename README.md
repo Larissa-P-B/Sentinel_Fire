@@ -1,4 +1,4 @@
-# 🔥 Sentinel Fire – Sistema de Gerenciamento de Queimadas
+# 🔥 Sentinel Fire – Sistema Inteligente de Monitoramento e Combate a Queimadas
 
 ## Introdução:
 
