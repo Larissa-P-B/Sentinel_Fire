@@ -1,4 +1,4 @@
-# 🔥 Sentinel Fire – Sistema de Gerenciamento de Queimadas
+# 🔥 Sentinel Fire – Sistema Inteligente de Monitoramento e Combate a Queimadas
 
 ## Introdução:
 
@@ -227,11 +227,17 @@ Certifique-se de que o backend Flask esteja rodando em http://localhost:5000 ant
 - Controle de simulação, atendimento de ocorrências e atualização dos dados.
 
 - Exibição de métricas importantes como focos ativos, severidade máxima e histórico de ações dos drones.
+---
 
 ### 3. Integração e Visualização Geográfica:
+
+---
+
 - Utiliza o backend para servir um mapa interativo (ex: Folium ou outra biblioteca de mapas), incorporado no frontend via iframe.
 
 - Marcadores coloridos indicam o status das ocorrências para facilitar o entendimento rápido do cenário.
+
+---
 
 ### Funcionalidades Principais: 
 
@@ -247,6 +253,7 @@ Certifique-se de que o backend Flask esteja rodando em http://localhost:5000 ant
 
 **Atualização manual:** Botão para atualização dos dados a qualquer momento, garantindo controle pelo usuário.
 
+---
 
 ### Tecnologias Utilizadas:
 - Python: Linguagem principal do backend e do frontend.
@@ -260,6 +267,8 @@ Certifique-se de que o backend Flask esteja rodando em http://localhost:5000 ant
 - Pandas: Manipulação e apresentação de dados tabulares.
 
 - Folium (ou similar): Geração do mapa interativo para visualização dos focos.
+
+---
 
 ## Aplicação de Estruturas de Dados no Projeto (Fila, Pilha, Lista Ligada, Árvore, Heap)
 
